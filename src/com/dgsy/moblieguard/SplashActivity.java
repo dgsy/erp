@@ -36,6 +36,7 @@ public class SplashActivity extends Activity {
 
 	private void checkVersion() {
 		// TODO Auto-generated method stub
+		//?
 		new Thread() {
 
 			public void run() {
