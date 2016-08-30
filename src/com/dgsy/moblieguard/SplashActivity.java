@@ -12,6 +12,9 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.app.Activity;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
+import android.content.pm.PackageManager.NameNotFoundException;
 import android.os.Bundle;
 import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
@@ -19,19 +22,38 @@ import android.view.animation.AnimationSet;
 import android.view.animation.RotateAnimation;
 import android.view.animation.ScaleAnimation;
 import android.widget.RelativeLayout;
+import android.widget.TextView;
 
 import com.dgsy.moblieguard.domain.UrlBean;
 
 public class SplashActivity extends Activity {
 	private RelativeLayout rl_root;
+	private int versionCode;
+	private String versionName;
+	private TextView tv_versionName;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 
 		initView();
+		initdata();
 		initAnimation();
+		
 		checkVersion();
+	}
+
+	private void initdata() {
+		// TODO Auto-generated method stub
+		PackageManager pm = getPackageManager();
+		try {
+			PackageInfo packageInfo = pm.getPackageInfo(getPackageName(), 0);
+			versionCode = packageInfo.versionCode;
+			versionName = packageInfo.versionName;
+			tv_versionName.setText(versionName);
+		} catch (NameNotFoundException e) {
+			// can not reach
+		}
 	}
 
 	private void checkVersion() {
@@ -53,15 +75,17 @@ public class SplashActivity extends Activity {
 						BufferedReader reader = new BufferedReader(
 								new InputStreamReader(is));
 						String line = reader.readLine();
-						StringBuffer jsonstring = new StringBuffer();
+						StringBuffer json = new StringBuffer();
 						while (line != null) {
-							jsonstring.append(line);
+							json.append(line);
 							line = reader.readLine();
 						}
-						UrlBean parsejson = parsejson(jsonstring);
-						System.out.println(parsejson.getVersionCode());
+						UrlBean parsejson = parsejson(json);
+						isNewVersion(parsejson);
+						System.out.println(parsejson.getVersionCode()+"°æ±¾ºÅ");
 						reader.close();
 						conn.disconnect();
+						 parsejson(json);
 					}
 				} catch (MalformedURLException e) {
 					// TODO Auto-generated catch block
@@ -71,6 +95,16 @@ public class SplashActivity extends Activity {
 					e.printStackTrace();
 				}
 
+			}
+
+			private void isNewVersion(UrlBean parsejson) {
+				// TODO Auto-generated method stub
+				int serverCode=parsejson.getVersionCode();
+				if (serverCode==versionCode) {
+						
+				}else {
+					
+				}
 			}
 
 			/**
@@ -106,6 +140,7 @@ public class SplashActivity extends Activity {
 
 		setContentView(R.layout.activity_splash);
 		rl_root = (RelativeLayout) findViewById(R.id.rl_splash_root);
+		tv_versionName = (TextView) findViewById(R.id.tv_splash_version_name);
 	}
 
 	private void initAnimation() {
