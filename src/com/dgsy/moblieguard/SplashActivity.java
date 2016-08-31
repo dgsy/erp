@@ -12,10 +12,17 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
+import android.content.DialogInterface.OnClickListener;
+import android.content.Intent;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
+import android.os.SystemClock;
 import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
 import android.view.animation.AnimationSet;
@@ -27,11 +34,14 @@ import android.widget.TextView;
 import com.dgsy.moblieguard.domain.UrlBean;
 
 public class SplashActivity extends Activity {
+	protected static final int LOADMAIN = 1;// 加载 主界面
+	protected static final int SHOWUPDATEDIALOG = 2;// 显示是否更新的对话框
 	private RelativeLayout rl_root;
 	private int versionCode;
 	private String versionName;
 	private TextView tv_versionName;
-
+	private UrlBean parsejson;// URL的信息封装
+	private long startTimeMillis;
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -39,7 +49,7 @@ public class SplashActivity extends Activity {
 		initView();
 		initdata();
 		initAnimation();
-		
+
 		checkVersion();
 	}
 
@@ -56,13 +66,19 @@ public class SplashActivity extends Activity {
 		}
 	}
 
+	private void loadMain() {
+		Intent intent = new Intent(SplashActivity.this, HomeActivity.class);
+		startActivity(intent);
+	}
+
 	private void checkVersion() {
 		// TODO Auto-generated method stub
-		//?
+		// ?
 		new Thread() {
 
 			public void run() {
 				try {
+					startTimeMillis = System.currentTimeMillis();
 					URL url = new URL(
 							"http://192.168.0.100:8080/guardversion.json");
 					HttpURLConnection conn = (HttpURLConnection) url
@@ -80,12 +96,12 @@ public class SplashActivity extends Activity {
 							json.append(line);
 							line = reader.readLine();
 						}
-						UrlBean parsejson = parsejson(json);
+						parsejson = parsejson(json);
 						isNewVersion(parsejson);
-						System.out.println(parsejson.getVersionCode()+"版本号");
+						System.out.println(parsejson.getVersionCode() + "版本号");
 						reader.close();
 						conn.disconnect();
-						 parsejson(json);
+						parsejson(json);
 					}
 				} catch (MalformedURLException e) {
 					// TODO Auto-generated catch block
@@ -97,13 +113,41 @@ public class SplashActivity extends Activity {
 
 			}
 
+			private Handler handler = new Handler() {
+				public void handleMessage(android.os.Message msg) {
+					switch (msg.what) {
+					case LOADMAIN:
+						loadMain();
+						break;
+					case SHOWUPDATEDIALOG:// 显示更新版本的对话框
+						showUpdateDialog();
+					default:
+						break;
+					}
+
+				}
+
+			};
+			
+
 			private void isNewVersion(UrlBean parsejson) {
 				// TODO Auto-generated method stub
-				int serverCode=parsejson.getVersionCode();
-				if (serverCode==versionCode) {
-						
-				}else {
+				int serverCode = parsejson.getVersionCode();
+				long endTimeMillis = System.currentTimeMillis();//执行结束的时间
+				if (endTimeMillis-startTimeMillis<3000) {
+					//设置休眠的时间,保证至少休眠3秒
+					SystemClock.sleep(3000-(endTimeMillis-startTimeMillis));
+				}
+				
+				if (serverCode == versionCode) {
 					
+					Message msg = Message.obtain();
+					msg.what = LOADMAIN;
+					handler.sendMessage(msg);
+				} else {
+					Message msg = Message.obtain();
+					msg.what = SHOWUPDATEDIALOG;
+					handler.sendMessage(msg);
 				}
 			}
 
@@ -164,5 +208,33 @@ public class SplashActivity extends Activity {
 		as.addAnimation(aa);
 		rl_root.startAnimation(as);
 	}
+
+	/**
+	 * 显示是否更新新版本的对话框
+	 */
+	private void showUpdateDialog() {
+		// TODO Auto-generated method stub
+		AlertDialog.Builder builder = new AlertDialog.Builder(this);
+		builder.setTitle("提醒")
+				.setMessage("是否更新新版本？新版本具有如下" + parsejson.getDesc())
+				.setPositiveButton("更新", new OnClickListener() {
+
+					@Override
+					public void onClick(DialogInterface dialog, int which) {
+						// TODO Auto-generated method stub
+						//更新APK
+						System.out.println("更新APK");
+					}
+				}).setNegativeButton("取消", new OnClickListener() {
+					
+					@Override
+					public void onClick(DialogInterface dialog, int which) {
+						// TODO Auto-generated method stub
+						//进入主界面
+						loadMain();
+					}
+				});
+		builder.show();
+	};
 
 }
