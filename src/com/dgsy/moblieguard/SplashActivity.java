@@ -1,6 +1,7 @@
 package com.dgsy.moblieguard;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -13,13 +14,17 @@ import org.json.JSONObject;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.DialogInterface;
+import android.content.DialogInterface.OnCancelListener;
 import android.content.DialogInterface.OnClickListener;
 import android.content.Intent;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
+import android.net.Uri;
 import android.os.Bundle;
+import android.os.Environment;
 import android.os.Handler;
 import android.os.Message;
 import android.os.SystemClock;
@@ -30,8 +35,13 @@ import android.view.animation.RotateAnimation;
 import android.view.animation.ScaleAnimation;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.dgsy.moblieguard.domain.UrlBean;
+import com.lidroid.xutils.HttpUtils;
+import com.lidroid.xutils.exception.HttpException;
+import com.lidroid.xutils.http.ResponseInfo;
+import com.lidroid.xutils.http.callback.RequestCallBack;
 
 public class SplashActivity extends Activity {
 	protected static final int LOADMAIN = 1;// 加载 主界面
@@ -42,6 +52,8 @@ public class SplashActivity extends Activity {
 	private TextView tv_versionName;
 	private UrlBean parsejson;// URL的信息封装
 	private long startTimeMillis;
+	protected Context context = SplashActivity.this;
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -69,6 +81,7 @@ public class SplashActivity extends Activity {
 	private void loadMain() {
 		Intent intent = new Intent(SplashActivity.this, HomeActivity.class);
 		startActivity(intent);
+		finish();//关闭自己	
 	}
 
 	private void checkVersion() {
@@ -128,19 +141,18 @@ public class SplashActivity extends Activity {
 				}
 
 			};
-			
 
 			private void isNewVersion(UrlBean parsejson) {
 				// TODO Auto-generated method stub
 				int serverCode = parsejson.getVersionCode();
-				long endTimeMillis = System.currentTimeMillis();//执行结束的时间
-				if (endTimeMillis-startTimeMillis<3000) {
-					//设置休眠的时间,保证至少休眠3秒
-					SystemClock.sleep(3000-(endTimeMillis-startTimeMillis));
+				long endTimeMillis = System.currentTimeMillis();// 执行结束的时间
+				if (endTimeMillis - startTimeMillis < 3000) {
+					// 设置休眠的时间,保证至少休眠3秒
+					SystemClock.sleep(3000 - (endTimeMillis - startTimeMillis));
 				}
-				
+
 				if (serverCode == versionCode) {
-					
+
 					Message msg = Message.obtain();
 					msg.what = LOADMAIN;
 					handler.sendMessage(msg);
@@ -215,26 +227,87 @@ public class SplashActivity extends Activity {
 	private void showUpdateDialog() {
 		// TODO Auto-generated method stub
 		AlertDialog.Builder builder = new AlertDialog.Builder(this);
-		builder.setTitle("提醒")
-				.setMessage("是否更新新版本？新版本具有如下" + parsejson.getDesc())
+		// 让用户禁用取消操作
+		// builder.setCancelable(false);
+		builder.setOnCancelListener(new OnCancelListener() {
+
+			@Override
+			public void onCancel(DialogInterface dialog) {
+				// 取消的事件处理
+				//进入主界面
+				loadMain();
+
+			}
+		}).setTitle("提醒").setMessage("是否更新新版本？新版本具有如下" + parsejson.getDesc())
 				.setPositiveButton("更新", new OnClickListener() {
 
 					@Override
 					public void onClick(DialogInterface dialog, int which) {
 						// TODO Auto-generated method stub
-						//更新APK
+						// 更新APK
 						System.out.println("更新APK");
+						downloadNewAPK();// 下载新版本
+						// 安装APK
+						
+						installApk();
 					}
 				}).setNegativeButton("取消", new OnClickListener() {
-					
+
 					@Override
 					public void onClick(DialogInterface dialog, int which) {
 						// TODO Auto-generated method stub
-						//进入主界面
+						// 进入主界面
 						loadMain();
 					}
 				});
 		builder.show();
+	}
+
+	protected void installApk() {
+		// TODO Auto-generated method stub
+		SystemClock.sleep(1000);
+		Intent intent = new Intent("android.intent.action.VIEW");
+		intent.addCategory("android.intent.category.DEFAULT");
+		String type = "application/vnd.android.package-archive";
+		Uri data = Uri.fromFile(new File(Environment
+				.getExternalStorageDirectory().getPath() + "/xx.apk"));
+		intent.setDataAndType(data, type);
+		startActivityForResult(intent, 0);
+	}
+
+	/**
+	 * 新版本的下载安装
+	 */
+	protected void downloadNewAPK() {
+		// TODO Auto-generated method stub
+		HttpUtils utils = new HttpUtils();
+		// 下载的URL
+		// target 本地的路径
+		//先删除点XX.APK
+		File file=new File(Environment
+				.getExternalStorageDirectory().getPath() + "/xx.apk");
+		file.delete();
+		utils.download(parsejson.getUrl(), Environment
+				.getExternalStorageDirectory().getPath() + "/xx.apk",
+				new RequestCallBack<File>() {
+
+					@Override
+					public void onSuccess(ResponseInfo<File> arg0) {
+						// TODO Auto-generated method stub
+						// 下载成功
+						// 在主线程执行
+						Toast.makeText(context, "下载新版本成功", Toast.LENGTH_SHORT)
+								.show();
+					}
+
+					@Override
+					public void onFailure(HttpException arg0, String arg1) {
+						// TODO Auto-generated method stub
+						// 下载失败
+						Toast.makeText(context, "下载新版本失败", Toast.LENGTH_SHORT)
+								.show();
+					}
+				});
 	};
 
 }
