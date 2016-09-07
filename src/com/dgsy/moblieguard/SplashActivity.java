@@ -29,11 +29,13 @@ import android.os.Handler;
 import android.os.Message;
 import android.os.SystemClock;
 import android.preference.PreferenceManager.OnActivityResultListener;
+import android.view.View;
 import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
 import android.view.animation.AnimationSet;
 import android.view.animation.RotateAnimation;
 import android.view.animation.ScaleAnimation;
+import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -55,13 +57,14 @@ public class SplashActivity extends Activity {
 	private UrlBean parsejson;// URL的信息封装
 	private long startTimeMillis;
 	protected Context context = SplashActivity.this;
+	private ProgressBar pb_download;//下载最新版本APK的进度条
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 
 		initView();
-		initdata();
+		initdata(); 
 		initAnimation();
 
 		checkVersion();
@@ -254,6 +257,7 @@ public class SplashActivity extends Activity {
 		setContentView(R.layout.activity_splash);
 		rl_root = (RelativeLayout) findViewById(R.id.rl_splash_root);
 		tv_versionName = (TextView) findViewById(R.id.tv_splash_version_name);
+		pb_download = (ProgressBar) findViewById(R.id.pb_splash_download_progress);
 	}
 
 	private void initAnimation() {
@@ -306,7 +310,7 @@ public class SplashActivity extends Activity {
 						downloadNewAPK();// 下载新版本
 						// 安装APK
 
-						installApk();
+						
 					}
 				}).setNegativeButton("取消", new OnClickListener() {
 
@@ -322,7 +326,7 @@ public class SplashActivity extends Activity {
 
 	protected void installApk() {
 		// TODO Auto-generated method stub
-		SystemClock.sleep(1000);
+//		SystemClock.sleep(1000);
 		Intent intent = new Intent("android.intent.action.VIEW");
 		intent.addCategory("android.intent.category.DEFAULT");
 		String type = "application/vnd.android.package-archive";
@@ -363,6 +367,18 @@ public class SplashActivity extends Activity {
 						// 在主线程执行
 						Toast.makeText(context, "下载新版本成功", Toast.LENGTH_SHORT)
 								.show();
+						installApk();
+						pb_download.setVisibility(View.GONE);
+					} 
+
+					@Override
+					public void onLoading(long total, long current,
+							boolean isUploading) {
+						// TODO Auto-generated method stub
+						pb_download.setMax((int) total);//设置进度条的最大值
+						pb_download.setProgress((int) current);
+						pb_download.setVisibility(View.VISIBLE);
+						super.onLoading(total, current, isUploading);
 					}
 
 					@Override
