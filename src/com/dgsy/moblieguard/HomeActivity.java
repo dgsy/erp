@@ -1,5 +1,6 @@
 package com.dgsy.moblieguard;
 
+import com.dgsy.moblieguard.utils.Md5Utils;
 import com.dgsy.moblieguard.utils.MyConstants;
 import com.dgsy.moblieguard.utils.SpTools;
 
@@ -54,7 +55,14 @@ public class HomeActivity extends Activity {
 				// TODO Auto-generated method stub
 				switch (position) {
 				case 0:// 手机防盗
-					showSettingPassDialog();
+					//是否设置过密码,没有设置密码的话,弹出设置密码对话框,如果设置过密码的话弹出登录密码对话框
+					//设置密码对话框
+					if (TextUtils.isEmpty(SpTools.getString(getApplicationContext(), MyConstants.PASSWORD, ""))) {
+						showSettingPassDialog();
+					}else {
+						showEnterPassDialog();
+					}
+					
 					break;
 				case 1:// 手机防盗
 
@@ -89,6 +97,57 @@ public class HomeActivity extends Activity {
 		});
 	}
 
+	protected void showEnterPassDialog() {
+		// TODO Auto-generated method stub
+		AlertDialog.Builder builder = new AlertDialog.Builder(this);
+		View view = View.inflate(getApplicationContext(),
+				R.layout.dialog_enter_password, null);
+		final EditText et_passone = (EditText) view
+				.findViewById(R.id.et_dialog_enter_password_passone);
+		
+		Button bt_login = (Button) view
+				.findViewById(R.id.bt_dialog_enter_password_login);
+		Button bt_cancel = (Button) view
+				.findViewById(R.id.bt_dialog_enter_password_cancel);
+
+		builder.setView(view);
+		bt_login.setOnClickListener(new OnClickListener() {
+			
+			@Override
+			public void onClick(View v) {
+				// 设置密码
+				String passone=et_passone.getText().toString().trim();
+				if (TextUtils.isEmpty(passone)) {
+					Toast.makeText(getApplicationContext(), "密码不能为空", Toast.LENGTH_LONG).show();
+				return;
+				}else {
+					//密码的判断MD5 2次加密
+						passone=Md5Utils.md5(Md5Utils.md5(passone));
+						if (passone.equals(SpTools.getString(getApplicationContext(),MyConstants.PASSWORD, ""))) {
+							//一致
+						}else {
+							//不一致
+							Toast.makeText(getApplicationContext(), "密码不正确", Toast.LENGTH_LONG).show();
+							return;
+						}
+						//关闭对话框	
+						dialog.dismiss();
+				}
+
+			}
+		}); 
+		bt_cancel.setOnClickListener(new OnClickListener() {
+
+			@Override
+			public void onClick(View v) {
+				// TODO Auto-generated method stub
+				dialog.dismiss();//关闭对话框
+			}
+		});
+		dialog = builder.create();
+		dialog.show();
+	}
+
 	private void showSettingPassDialog() {
 		// TODO Auto-generated method stub
 		AlertDialog.Builder builder = new AlertDialog.Builder(this);
@@ -120,12 +179,14 @@ public class HomeActivity extends Activity {
 				}else {
 					//保存密码到SP中
 					System.out.println("保存密码");
+					//对密码加密处理,md5
+					passone=Md5Utils.md5(Md5Utils.md5(passone));
 					SpTools.putString(getApplicationContext(), MyConstants.PASSWORD, passone);
 					dialog.dismiss();
 				}
 
 			}
-		});
+		}); 
 		bt_cancel.setOnClickListener(new OnClickListener() {
 
 			@Override
