@@ -7,6 +7,7 @@ import com.dgsy.moblieguard.utils.SpTools;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.AlertDialog.Builder;
+import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.View;
@@ -125,6 +126,8 @@ public class HomeActivity extends Activity {
 						passone=Md5Utils.md5(Md5Utils.md5(passone));
 						if (passone.equals(SpTools.getString(getApplicationContext(),MyConstants.PASSWORD, ""))) {
 							//一致
+							Intent intent=new Intent(HomeActivity.this,LostFindActivity.class);
+							startActivity(intent);
 						}else {
 							//不一致
 							Toast.makeText(getApplicationContext(), "密码不正确", Toast.LENGTH_LONG).show();

@@ -27,6 +27,8 @@
             </intent-filter>
         </activity>
         <activity android:name="com.dgsy.moblieguard.HomeActivity"></activity>
+        <activity android:name="com.dgsy.moblieguard.LostFindActivity"></activity>
+          <activity android:name="com.dgsy.moblieguard.Setup1Activity"></activity>
     </application>
 
 </manifest>

@@ -1,6 +1,7 @@
 package com.dgsy.moblieguard.utils;
 
 public interface MyConstants {
-String SPFILE="config";
-String PASSWORD="password";
+String SPFILE="config";//SP的配置文件名
+String PASSWORD="password";//手机防盗的密码
+String ISSETUP="issetup";//是否进入过向导界面
 }
