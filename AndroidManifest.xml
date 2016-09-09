@@ -7,28 +7,38 @@
     <uses-sdk
         android:minSdkVersion="19"
         android:targetSdkVersion="19" />
-  <uses-permission android:name="android.permission.INTERNET"/>
-  <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
-  <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
+
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+
     <application
         android:allowBackup="true"
         android:icon="@drawable/ic_launcher"
         android:label="@string/app_name"
-         android:theme="@style/AppTheme" >
+        android:theme="@style/AppTheme" >
         <activity
             android:name="com.dgsy.moblieguard.SplashActivity"
             android:label="@string/app_name"
-             android:theme="@style/AppTheme"
-             >
+            android:theme="@style/AppTheme" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name="com.dgsy.moblieguard.HomeActivity"></activity>
-        <activity android:name="com.dgsy.moblieguard.LostFindActivity"></activity>
-          <activity android:name="com.dgsy.moblieguard.Setup1Activity"></activity>
+        <activity android:name="com.dgsy.moblieguard.HomeActivity" >
+        </activity>
+        <activity android:name="com.dgsy.moblieguard.LostFindActivity" >
+        </activity>
+        <activity android:name="com.dgsy.moblieguard.Setup1Activity" >
+        </activity>
+        <activity android:name="com.dgsy.moblieguard.Setup2Activity" >
+        </activity>
+        <activity android:name="com.dgsy.moblieguard.Setup3Activity" >
+        </activity>
+        <activity android:name="com.dgsy.moblieguard.Setup4Activity" >
+        </activity>
     </application>
 
 </manifest>
