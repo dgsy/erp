@@ -61,7 +61,7 @@ public abstract class BaseSetupActivity extends Activity {
 		// 1,完成界面的切换
 		prevActivity();
 		// 2,动画的播放
-//		prevAnimation();// 界面之间企划的动画
+		prevAnimation();// 界面之间企划的动画
 	}
 
 	private void prevAnimation() {
@@ -71,7 +71,13 @@ public abstract class BaseSetupActivity extends Activity {
 
 	public abstract void prevActivity();
 
-	public abstract void nextAnimation();
+	/**
+	 * 下一个界面显示的动画
+	 */
+	private void nextAnimation() {
+		//第一个参数进来的动画，第二个参数是出去的动画
+		overridePendingTransition(R.anim.next_in, R.anim.next_out);
+	}
 
 	public abstract void nextActivity();
 

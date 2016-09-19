@@ -19,11 +19,7 @@ public class Setup4Activity extends BaseSetupActivity {
 		startActivity(Setup4Activity.class);
 	}
 
-	@Override
-	public void nextAnimation() {
-		// TODO Auto-generated method stub
-		
-	}
+	
 
 	@Override
 	public void nextActivity() {

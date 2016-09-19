@@ -18,11 +18,7 @@ public void prevActivity() {
 	
 }
 
-@Override
-public void nextAnimation() {
-	// TODO Auto-generated method stub
-	
-}
+
 
 @Override
 public void nextActivity() {
