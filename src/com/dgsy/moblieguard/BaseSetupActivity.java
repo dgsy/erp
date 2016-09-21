@@ -3,6 +3,9 @@ package com.dgsy.moblieguard;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.GestureDetector;
+import android.view.GestureDetector.OnGestureListener;
+import android.view.MotionEvent;
 import android.view.View;
 
 public abstract class BaseSetupActivity extends Activity {
@@ -11,10 +14,67 @@ public abstract class BaseSetupActivity extends Activity {
 		// TODO Auto-generated method stub
 		super.onCreate(savedInstanceState);
 		initView();
-		// initGesture();//初始化手势识别器
+		 initGesture();//初始化手势识别器
 
 		initData();// 初始数据
 		initEvent();// 初始化组件的事件
+	}
+
+	private void initGesture() {
+		// TODO Auto-generated method stub
+		GestureDetector gd=new GestureDetector(new OnGestureListener() {
+			
+			@Override
+			public boolean onSingleTapUp(MotionEvent e) {
+				// TODO Auto-generated method stub
+				return false;
+			}
+			
+			@Override
+			public void onShowPress(MotionEvent e) {
+				// TODO Auto-generated method stub
+				
+			}
+			
+			@Override
+			public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX,
+					float distanceY) {
+				// TODO Auto-generated method stub
+				return false;
+			}
+			
+			@Override
+			public void onLongPress(MotionEvent e) {
+				// TODO Auto-generated method stub
+				
+			}
+			
+			@Override
+			public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX,
+					float velocityY) {
+				// TODO Auto-generated method stub
+				//x轴方向的速度是否满足横向滑动的条件 pix/s
+				if (velocityX > 200) { //速度大于400像素每秒
+					//可以完成滑动
+					float dx = e2.getX() - e1.getX();//x轴方向滑动的间距
+					if (Math.abs(dx) < 100) {
+						return true;//如果间距不符合直接无效
+					}
+					if (dx < 0 ){//从右往左滑动
+						next(null);//不是组件的事件调用
+					}  else {//从左往右滑动
+						prev(null);
+					}
+				}
+				return true;
+			}
+			
+			@Override
+			public boolean onDown(MotionEvent e) {
+				// TODO Auto-generated method stub
+				return false;
+			}
+		});
 	}
 
 	public void initData() {
@@ -70,7 +130,7 @@ public abstract class BaseSetupActivity extends Activity {
 	}
 
 	public abstract void prevActivity();
-
+	
 	/**
 	 * 下一个界面显示的动画
 	 */
