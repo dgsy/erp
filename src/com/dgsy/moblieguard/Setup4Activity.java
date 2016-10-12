@@ -1,7 +1,5 @@
 package com.dgsy.moblieguard;
 
-import android.app.Activity;
-import android.os.Bundle;
 
 /**
  * @author Administrator
@@ -16,7 +14,7 @@ public class Setup4Activity extends BaseSetupActivity {
 	@Override
 	public void prevActivity() {
 		// TODO Auto-generated method stub
-		startActivity(Setup4Activity.class);
+		startActivity(Setup3Activity.class);
 	}
 
 	
